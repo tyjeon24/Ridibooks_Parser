@@ -33,11 +33,7 @@ class RidibooksParser():
 				continue
 
 			self.read_contents(file)
-			self.set_metadata()
-			time = re.search(r"%d+(?=\.txt)", file)
-			if time != None:
-				print(time)
-
+			self.set_metadata(file)
 			self.parse_contents()
 			self.append_data()
 		print(self.df)
@@ -48,7 +44,7 @@ class RidibooksParser():
 		with open(file, mode="r", encoding="utf-8") as f:
 			self.contents = [line for line in f.readlines() if line!= ""]
 
-	def set_metadata(self):
+	def set_metadata(self, file):
 		self.metadata = {
 			"날짜" : str(datetime.now()),
 			"저자" : "",
@@ -60,6 +56,17 @@ class RidibooksParser():
 			"출판사" : "",
 			"출판연도" : ""
 		}
+
+		time = re.search(r"\d+(?=\.txt)", file)
+		is_having_datetime_info = False
+		if time != None:
+			if len(time.group()) == 14:
+				is_having_datetime_info = True
+
+		if is_having_datetime_info:
+			time = time.group()
+			self.metadata["날짜"] = "{}-{}-{} {}:{}:{}".format(time[0:4], time[4:6], time[6:8], time[8:10], time[10:12], time[12:14])
+
 
 		for key, value in self.custom_metadata.items():
 			self.metadata[key] = value
